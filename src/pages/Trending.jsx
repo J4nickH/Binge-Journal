@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Spinner, Alert } from 'react-bootstrap';
+import React, { useState, useEffect, useRef } from 'react';
+import { Container, Spinner, Alert, Button } from 'react-bootstrap';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { fetchTrending } from '../services/tmdb';
 import MovieCard from '../components/MovieCard';
 
@@ -11,21 +12,25 @@ const Trending = ({ watchlist, watchedList, onSelectMovie }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Refs for scrolling rows horizontally
+  const row1Ref = useRef(null);
+  const row2Ref = useRef(null);
+  const row3Ref = useRef(null);
+
   useEffect(() => {
     const loadTrendingData = async () => {
       setLoading(true);
       setError(null);
       try {
-        // Fetch all 3 categories asynchronously in parallel
         const [allData, moviesData, seriesData] = await Promise.all([
           fetchTrending('all', 'day'),
           fetchTrending('movie', 'day'),
           fetchTrending('tv', 'day'),
         ]);
 
-        setTrendingAll(allData.slice(0, 4)); // Get top 4 for "New" section
-        setTrendingMovies(moviesData.slice(0, 4)); // Get top 4 movies
-        setTrendingSeries(seriesData.slice(0, 4)); // Get top 4 series
+        setTrendingAll(allData);
+        setTrendingMovies(moviesData);
+        setTrendingSeries(seriesData);
       } catch (err) {
         setError('Failed to load trending content. Please check your internet connection or API key.');
       } finally {
@@ -35,6 +40,18 @@ const Trending = ({ watchlist, watchedList, onSelectMovie }) => {
 
     loadTrendingData();
   }, []);
+
+  // Scroll handler function
+  const scrollRow = (ref, direction) => {
+    if (ref.current) {
+      const { scrollLeft, clientWidth } = ref.current;
+      const scrollAmount = clientWidth * 0.75; // Scroll by 75% of the visible width
+      ref.current.scrollTo({
+        left: direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount,
+        behavior: 'smooth',
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -55,58 +72,59 @@ const Trending = ({ watchlist, watchedList, onSelectMovie }) => {
     );
   }
 
+  // Reusable Horizontal Row Component with Arrow Buttons
+  const renderHorizontalRow = (title, items, rowRef) => (
+    <section className="mb-5 position-relative">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h3 className="fw-bold m-0">{title}</h3>
+        <div>
+          <Button 
+            variant="outline-secondary" 
+            size="sm" 
+            className="me-2 rounded-circle"
+            onClick={() => scrollRow(rowRef, 'left')}
+          >
+            <ChevronLeft size={18} />
+          </Button>
+          <Button 
+            variant="outline-secondary" 
+            size="sm" 
+            className="rounded-circle"
+            onClick={() => scrollRow(rowRef, 'right')}
+          >
+            <ChevronRight size={18} />
+          </Button>
+        </div>
+      </div>
+
+      {/* Horizontal scrolling container */}
+      <div 
+        ref={rowRef}
+        className="d-flex gap-3 overflow-x-auto pb-3 pt-1 scrollbar-hide"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {items.map((item) => (
+          <div key={item.id} style={{ minWidth: '200px', width: '200px', flexShrink: 0 }}>
+            <MovieCard
+              movie={item}
+              watchlist={watchlist}
+              watchedList={watchedList}
+              onSelectMovie={onSelectMovie}
+            />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+
   return (
-    <Container className="pb-5">
-      {/* Section 1: New / Trending Overview */}
-      <section className="mb-4">
-        <h2 className="fw-bold mb-3 border-bottom pb-2">New & Popular</h2>
-        <Row xs={1} sm={2} md={4} className="g-3">
-          {trendingAll.map((item) => (
-            <Col key={item.id}>
-              <MovieCard
-                movie={item}
-                watchlist={watchlist}
-                watchedList={watchedList}
-                onSelectMovie={onSelectMovie}
-              />
-            </Col>
-          ))}
-        </Row>
-      </section>
-
-      {/* Section 2: Trending Movies */}
-      <section className="mb-4">
-        <h2 className="fw-bold mb-3 border-bottom pb-2">Trending Movies</h2>
-        <Row xs={1} sm={2} md={4} className="g-3">
-          {trendingMovies.map((movie) => (
-            <Col key={movie.id}>
-              <MovieCard
-                movie={movie}
-                watchlist={watchlist}
-                watchedList={watchedList}
-                onSelectMovie={onSelectMovie}
-              />
-            </Col>
-          ))}
-        </Row>
-      </section>
-
-      {/* Section 3: Trending Series */}
-      <section className="mb-5">
-        <h2 className="fw-bold mb-3 border-bottom pb-2">Trending Series</h2>
-        <Row xs={1} sm={2} md={4} className="g-3">
-          {trendingSeries.map((show) => (
-            <Col key={show.id}>
-              <MovieCard
-                movie={show}
-                watchlist={watchlist}
-                watchedList={watchedList}
-                onSelectMovie={onSelectMovie}
-              />
-            </Col>
-          ))}
-        </Row>
-      </section>
+    <Container fluid className="px-4 pb-5">
+      <div className="my-4">
+        <h1 className="fw-bold mb-4">Discover What's Binge-Worthy</h1>
+        {renderHorizontalRow("🔥 New & Trending Today", trendingAll, row1Ref)}
+        {renderHorizontalRow("🎬 Trending Movies", trendingMovies, row2Ref)}
+        {renderHorizontalRow("📺 Trending Series", trendingSeries, row3Ref)}
+      </div>
     </Container>
   );
 };
