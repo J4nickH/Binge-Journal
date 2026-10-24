@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navigation from './components/Navigation';
+import Footer from './components/Footer'; // 1. Import Footer
 import Trending from './pages/Trending';
 import SearchPage from './pages/SearchPage';
 import WatchlistPage from './pages/WatchlistPage';
 import MovieModal from './components/MovieModal';
 
 function App() {
-  // State for the currently clicked movie detail modal
   const [selectedMovie, setSelectedMovie] = useState(null);
 
-  // Watchlist & Watched Lists using localStorage
   const [watchlist, setWatchlist] = useState(() => {
     const saved = localStorage.getItem('binge_watchlist');
     return saved ? JSON.parse(saved) : [];
@@ -31,40 +30,47 @@ function App() {
 
   return (
     <Router>
-      <div className="bg-light min-vh-100 pb-5">
+      {/* Flex container ensures footer stays at the bottom */}
+      <div className="bg-light min-vh-100 d-flex flex-column">
         <Navigation />
-        <Routes>
-          <Route 
-            path="/" 
-            element={
-              <Trending 
-                watchlist={watchlist} 
-                watchedList={watchedList} 
-                onSelectMovie={setSelectedMovie} 
-              />
-            } 
-          />
-          <Route 
-            path="/search" 
-            element={
-              <SearchPage 
-                watchlist={watchlist} 
-                watchedList={watchedList} 
-                onSelectMovie={setSelectedMovie} 
-              />
-            } 
-          />
-          <Route 
-            path="/watchlist" 
-            element={
-              <WatchlistPage 
-                watchlist={watchlist} 
-                watchedList={watchedList} 
-                onSelectMovie={setSelectedMovie} 
-              />
-            } 
-          />
-        </Routes>
+        
+        <div className="flex-grow-1">
+          <Routes>
+            <Route 
+              path="/" 
+              element={
+                <Trending 
+                  watchlist={watchlist} 
+                  watchedList={watchedList} 
+                  onSelectMovie={setSelectedMovie} 
+                />
+              } 
+            />
+            <Route 
+              path="/search" 
+              element={
+                <SearchPage 
+                  watchlist={watchlist} 
+                  watchedList={watchedList} 
+                  onSelectMovie={setSelectedMovie} 
+                />
+              } 
+            />
+            <Route 
+              path="/watchlist" 
+              element={
+                <WatchlistPage 
+                  watchlist={watchlist} 
+                  watchedList={watchedList} 
+                  onSelectMovie={setSelectedMovie} 
+                />
+              } 
+            />
+          </Routes>
+        </div>
+
+        {/* 2. Render Footer at the bottom */}
+        <Footer />
 
         {/* Detail Modal Popup */}
         <MovieModal
