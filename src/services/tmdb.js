@@ -1,16 +1,17 @@
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = 'https://api.themoviedb.org/3';
 
-// Helper to fetch trending movies/series for Screen 1 (Trending)
 export const fetchTrending = async (mediaType = 'all', timeWindow = 'day') => {
   try {
     const response = await fetch(`${BASE_URL}/trending/${mediaType}/${timeWindow}?api_key=${API_KEY}`);
-    if (!response.ok) throw new Error('Failed to fetch trending data');
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
     const data = await response.json();
-    return data.results; // Returns array of movies/shows
+    return data.results || [];
   } catch (error) {
-    console.error("Error fetching trending:", error);
-    return [];
+    console.error(`Error fetching trending ${mediaType}:`, error);
+    throw error; // Re-throw to handle error state in the UI
   }
 };
 
