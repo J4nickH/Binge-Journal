@@ -1,64 +1,96 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Badge, Row, Col, Spinner } from 'react-bootstrap';
-import { Bookmark, CheckCircle, Trash2, Film } from 'lucide-react';
+import { Bookmark, CheckCircle, Film } from 'lucide-react';
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
-const MovieModal = ({ movie, onClose, watchlist, setWatchlist, watchedList, setWatchedList }) => {
+const MovieModal = ({ 
+  movie, 
+  onClose, 
+  watchlist = [], 
+  setWatchlist, 
+  watchedList = [], 
+  setWatchedList 
+}) => {
+  // 1. ALL HOOKS MUST COME FIRST (No conditional returns above this)
   const [trailerKey, setTrailerKey] = useState(null);
   const [loadingTrailer, setLoadingTrailer] = useState(false);
 
+  // Fetch YouTube Trailer from TMDB
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchTrailer = async () => {
+      if (!movie || !movie.id) return;
+      setLoadingTrailer(true);
+      setTrailerKey(null);
+
+      const mediaType = movie.title ? 'movie' : 'tv';
+      try {
+        const res = await fetch(
+          `https://api.themoviedb.org/3/${mediaType}/${movie.id}/videos?api_key=${API_KEY}`
+        );
+        if (!res.ok) throw new Error('Failed to fetch videos');
+        
+        const data = await res.json();
+        const trailer = data.results?.find(
+          (vid) => vid.type === 'Trailer' && vid.site === 'YouTube'
+        ) || data.results?.[0]; // Fallback to any available video
+
+        if (isMounted) {
+          setTrailerKey(trailer ? trailer.key : null);
+        }
+      } catch (err) {
+        console.error('Error fetching trailer:', err);
+        if (isMounted) setTrailerKey(null);
+      } finally {
+        if (isMounted) setLoadingTrailer(false);
+      }
+    };
+
+    fetchTrailer();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [movie]);
+
+  // 2. CONDITIONAL RETURN AFTER HOOKS
   if (!movie) return null;
 
-  const title = movie.title || movie.name;
+  const title = movie.title || movie.name || 'Untitled';
   const releaseDate = movie.release_date || movie.first_air_date || '';
   const year = releaseDate ? releaseDate.split('-')[0] : 'N/A';
   const posterUrl = movie.poster_path 
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` 
     : 'https://via.placeholder.com/500x750?text=No+Image';
 
-  const isInWatchlist = watchlist.some((item) => item.id === movie.id);
-  const isWatched = watchedList.some((item) => item.id === movie.id);
-
-  // Fetch YouTube Trailer from TMDB
-  useEffect(() => {
-    const fetchTrailer = async () => {
-      setLoadingTrailer(true);
-      const mediaType = movie.title ? 'movie' : 'tv';
-      try {
-        const res = await fetch(`https://api.themoviedb.org/3/${mediaType}/${movie.id}/videos?api_key=${API_KEY}`);
-        const data = await res.json();
-        const trailer = data.results?.find((vid) => vid.type === 'Trailer' && vid.site === 'YouTube');
-        setTrailerKey(trailer ? trailer.key : null);
-      } catch (err) {
-        console.error('Error fetching trailer:', err);
-      } finally {
-        setLoadingTrailer(false);
-      }
-    };
-
-    fetchTrailer();
-  }, [movie]);
+  const isInWatchlist = watchlist.some((item) => item?.id === movie.id);
+  const isWatched = watchedList.some((item) => item?.id === movie.id);
 
   // Toggle Watchlist
   const handleToggleWatchlist = () => {
+    if (!setWatchlist) return;
     if (isInWatchlist) {
       setWatchlist(watchlist.filter((item) => item.id !== movie.id));
     } else {
       setWatchlist([...watchlist, movie]);
-      // Remove from watched list if moving back to watchlist
-      setWatchedList(watchedList.filter((item) => item.id !== movie.id));
+      if (setWatchedList) {
+        setWatchedList(watchedList.filter((item) => item.id !== movie.id));
+      }
     }
   };
 
   // Toggle Watched List
   const handleToggleWatched = () => {
+    if (!setWatchedList) return;
     if (isWatched) {
       setWatchedList(watchedList.filter((item) => item.id !== movie.id));
     } else {
       setWatchedList([...watchedList, movie]);
-      // Remove from watchlist if marked as watched
-      setWatchlist(watchlist.filter((item) => item.id !== movie.id));
+      if (setWatchlist) {
+        setWatchlist(watchlist.filter((item) => item.id !== movie.id));
+      }
     }
   };
 
@@ -104,8 +136,12 @@ const MovieModal = ({ movie, onClose, watchlist, setWatchlist, watchedList, setW
             <p className="text-secondary">{movie.overview || 'No overview available for this title.'}</p>
             
             <div className="mb-3">
-              <Badge bg="secondary" className="me-2">Rating: {movie.vote_average?.toFixed(1) || 'N/A'} / 10</Badge>
-              <Badge bg="info">Popularity: {Math.round(movie.popularity || 0)}</Badge>
+              <Badge bg="secondary" className="me-2">
+                Rating: {movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'} / 10
+              </Badge>
+              <Badge bg="info">
+                Popularity: {movie.popularity ? Math.round(movie.popularity) : 'N/A'}
+              </Badge>
             </div>
 
             <hr />
@@ -114,17 +150,20 @@ const MovieModal = ({ movie, onClose, watchlist, setWatchlist, watchedList, setW
               <Film size={20} /> Trailer
             </h5>
             {loadingTrailer ? (
-              <Spinner animation="border" size="sm" />
+              <div className="py-3">
+                <Spinner animation="border" size="sm" variant="primary" />
+                <span className="ms-2 text-muted small">Loading trailer...</span>
+              </div>
             ) : trailerKey ? (
               <div className="ratio ratio-16x9 rounded overflow-hidden shadow-sm">
                 <iframe
                   src={`https://www.youtube.com/embed/${trailerKey}`}
-                  title="Trailer"
+                  title={`${title} Trailer`}
                   allowFullScreen
                 ></iframe>
               </div>
             ) : (
-              <p className="text-muted small">No trailer available for this title.</p>
+              <p className="text-muted small">No YouTube trailer available for this title.</p>
             )}
           </Col>
         </Row>
