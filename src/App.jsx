@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navigation from './components/Navigation';
-import Footer from './components/Footer'; // 1. Import Footer
+import Footer from './components/Footer';
 import Trending from './pages/Trending';
 import SearchPage from './pages/SearchPage';
 import WatchlistPage from './pages/WatchlistPage';
@@ -30,14 +30,24 @@ function App() {
 
   return (
     <Router>
-      {/* Flex container ensures footer stays at the bottom */}
       <div className="bg-light min-vh-100 d-flex flex-column">
         <Navigation />
         
         <div className="flex-grow-1">
           <Routes>
+            {/* Root path now loads Watchlist as the main feature screen */}
             <Route 
               path="/" 
+              element={
+                <WatchlistPage 
+                  watchlist={watchlist} 
+                  watchedList={watchedList} 
+                  onSelectMovie={setSelectedMovie} 
+                />
+              } 
+            />
+            <Route 
+              path="/trending" 
               element={
                 <Trending 
                   watchlist={watchlist} 
@@ -69,10 +79,8 @@ function App() {
           </Routes>
         </div>
 
-        {/* 2. Render Footer at the bottom */}
         <Footer />
 
-        {/* Detail Modal Popup */}
         <MovieModal
           movie={selectedMovie}
           onClose={() => setSelectedMovie(null)}
