@@ -30,12 +30,12 @@ function App() {
 
   return (
     <Router>
-      <div className="bg-light min-vh-100 d-flex flex-column">
+      {/* w-100 ensures full width stretching */}
+      <div className="bg-light min-vh-100 d-flex flex-column w-100">
         <Navigation />
         
-        <div className="flex-grow-1">
+        <div className="flex-grow-1 w-100">
           <Routes>
-            {/* Root path now loads Watchlist as the main feature screen */}
             <Route 
               path="/" 
               element={

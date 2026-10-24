@@ -34,7 +34,7 @@ const SearchPage = ({ watchlist, watchedList, onSelectMovie }) => {
   };
 
   return (
-    <Container className="my-4 pb-5">
+    <Container fluid className="my-4 pb-5">
       <div className="text-center mb-4">
         <h1 className="fw-bold mb-3">Search Movies & TV Shows</h1>
         <p className="text-secondary">Find your favorite titles and add them to your collection.</p>
