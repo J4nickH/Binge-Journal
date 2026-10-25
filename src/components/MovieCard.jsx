@@ -30,6 +30,14 @@ const MovieCard = ({ movie, onSelectMovie, watchlist = [], watchedList = [] }) =
     <Card 
       className="h-100 shadow-sm position-relative movie-card border-0"
       onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick(e);
+        }
+      }}
       style={{ cursor: 'pointer', transition: 'transform 0.2s' }}
     >
       {/* Corner Status Badge */}

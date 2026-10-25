@@ -28,10 +28,10 @@ const WatchlistPage = ({ watchlist = [], watchedList = [], onSelectMovie }) => {
           </div>
           {watchlist.length > 0 && (
             <div className="d-flex gap-2">
-              <Button variant="outline-dark" size="sm" onClick={() => scroll(watchlistRef, 'left')}>
+              <Button variant="outline-secondary" className="rounded-circle" size="sm" onClick={() => scroll(watchlistRef, 'left')} aria-label="Scroll left">
                 <ChevronLeft size={20} />
               </Button>
-              <Button variant="outline-dark" size="sm" onClick={() => scroll(watchlistRef, 'right')}>
+              <Button variant="outline-secondary" className="rounded-circle" size="sm" onClick={() => scroll(watchlistRef, 'right')} aria-label="Scroll right">
                 <ChevronRight size={20} />
               </Button>
             </div>
@@ -73,10 +73,10 @@ const WatchlistPage = ({ watchlist = [], watchedList = [], onSelectMovie }) => {
           </div>
           {watchedList.length > 0 && (
             <div className="d-flex gap-2">
-              <Button variant="outline-dark" size="sm" onClick={() => scroll(watchedRef, 'left')}>
+              <Button variant="outline-secondary" className="rounded-circle" size="sm" onClick={() => scroll(watchedRef, 'left')} aria-label="Scroll left">
                 <ChevronLeft size={20} />
               </Button>
-              <Button variant="outline-dark" size="sm" onClick={() => scroll(watchedRef, 'right')}>
+              <Button variant="outline-secondary" className="rounded-circle" size="sm" onClick={() => scroll(watchedRef, 'right')} aria-label="Scroll right">
                 <ChevronRight size={20} />
               </Button>
             </div>

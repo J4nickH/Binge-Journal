@@ -83,6 +83,7 @@ const Trending = ({ watchlist, watchedList, onSelectMovie }) => {
             size="sm" 
             className="me-2 rounded-circle"
             onClick={() => scrollRow(rowRef, 'left')}
+            aria-label="Scroll left"
           >
             <ChevronLeft size={18} />
           </Button>
@@ -91,6 +92,7 @@ const Trending = ({ watchlist, watchedList, onSelectMovie }) => {
             size="sm" 
             className="rounded-circle"
             onClick={() => scrollRow(rowRef, 'right')}
+            aria-label="Scroll right"
           >
             <ChevronRight size={18} />
           </Button>
