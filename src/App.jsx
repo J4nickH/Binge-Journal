@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import Trending from './pages/Trending';
@@ -36,8 +36,9 @@ function App() {
         
         <div className="flex-grow-1 w-100">
           <Routes>
+            <Route path="/" element={<Navigate to="/watchlist" replace />} />
             <Route 
-              path="/" 
+              path="/watchlist" 
               element={
                 <WatchlistPage 
                   watchlist={watchlist} 
@@ -60,16 +61,6 @@ function App() {
               path="/search" 
               element={
                 <SearchPage 
-                  watchlist={watchlist} 
-                  watchedList={watchedList} 
-                  onSelectMovie={setSelectedMovie} 
-                />
-              } 
-            />
-            <Route 
-              path="/watchlist" 
-              element={
-                <WatchlistPage 
                   watchlist={watchlist} 
                   watchedList={watchedList} 
                   onSelectMovie={setSelectedMovie} 
