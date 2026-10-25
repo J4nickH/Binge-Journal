@@ -12,15 +12,23 @@ import MovieModal from './components/MovieModal';
 function App() {
   const [selectedMovie, setSelectedMovie] = useState(null);
 
-  const [watchlist, setWatchlist] = useState(() => {
-    const saved = localStorage.getItem('binge_watchlist');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const loadList = (key) => {
+    try {
+      const saved = localStorage.getItem(key);
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
 
-  const [watchedList, setWatchedList] = useState(() => {
-    const saved = localStorage.getItem('binge_watched');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [watchlist, setWatchlist] = useState(
+      () => loadList('binge_watchlist')
+    );
+
+  const [watchedList, setWatchedList] = useState(
+      () => loadList('binge_watched')
+    );
 
   useEffect(() => {
     localStorage.setItem('binge_watchlist', JSON.stringify(watchlist));
