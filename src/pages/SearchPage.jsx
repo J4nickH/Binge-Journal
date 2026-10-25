@@ -28,6 +28,7 @@ const SearchPage = ({ watchlist, watchedList, onSelectMovie }) => {
       setResults(filteredResults);
     } catch (err) {
       setError('Search failed. Please try again or check your network connection.');
+      setResults([]);
     } finally {
       setLoading(false);
     }

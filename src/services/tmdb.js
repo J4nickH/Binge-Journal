@@ -11,19 +11,21 @@ export const fetchTrending = async (mediaType = 'all', timeWindow = 'day') => {
     return data.results || [];
   } catch (error) {
     console.error(`Error fetching trending ${mediaType}:`, error);
-    throw error; // Re-throw to handle error state in the UI
+    throw error; 
   }
 };
 
 // Helper to search movies/shows for Screen 2 (Search)
 export const searchMovies = async (query) => {
-  if (!query) return [];
-  const response = await fetch(
-    `${BASE_URL}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}`
-  );
-  if (!response.ok) {
-    throw new Error('Failed to fetch search results');
+  try {
+    const response = await fetch(
+      `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}`
+    );
+    if (!response.ok) throw new Error('Failed to fetch search results');
+    const data = await response.json();
+    return data.results || [];
+  } catch (error) {
+    console.error("Error searching:", error);
+    throw error; // 
   }
-  const data = await response.json();
-  return data.results;
 };
