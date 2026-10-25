@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Badge, Row, Col, Spinner } from 'react-bootstrap';
 import { Bookmark, CheckCircle, Film } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
@@ -73,8 +74,10 @@ const MovieModal = ({
     if (!setWatchlist) return;
     if (isInWatchlist) {
       setWatchlist(watchlist.filter((item) => item.id !== movie.id));
+      toast.info(`${title} removed from Watchlist`, { autoClose: 2000 });
     } else {
       setWatchlist([...watchlist, movie]);
+      toast.success(`${title} added to Watchlist`, { autoClose: 2000 });
       if (setWatchedList) {
         setWatchedList(watchedList.filter((item) => item.id !== movie.id));
       }
@@ -86,8 +89,10 @@ const MovieModal = ({
     if (!setWatchedList) return;
     if (isWatched) {
       setWatchedList(watchedList.filter((item) => item.id !== movie.id));
+      toast.info(`${title} removed from Watched List`, { autoClose: 2000 });
     } else {
       setWatchedList([...watchedList, movie]);
+      toast.success(`${title} marked as Watched`, { autoClose: 2000 });
       if (setWatchlist) {
         setWatchlist(watchlist.filter((item) => item.id !== movie.id));
       }

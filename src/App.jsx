@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import Trending from './pages/Trending';
@@ -69,6 +71,18 @@ function App() {
             />
           </Routes>
         </div>
+
+        <ToastContainer 
+          position="bottom-right" 
+          autoClose={2500} 
+          hideProgressBar={false} 
+          newestOnTop 
+          closeOnClick 
+          rtl={false} 
+          pauseOnFocusLoss 
+          draggable 
+          pauseOnHover 
+        />
 
         <Footer />
 
