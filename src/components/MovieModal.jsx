@@ -66,20 +66,31 @@ const MovieModal = ({
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` 
     : 'https://via.placeholder.com/500x750?text=No+Image';
 
-  const isInWatchlist = watchlist.some((item) => item?.id === movie.id);
-  const isWatched = watchedList.some((item) => item?.id === movie.id);
+  
+  const getMediaType = (item) =>
+    item.media_type || (item.title ? 'movie' : 'tv');
+
+  const isSameTitle = (a, b) =>
+    a.id === b.id && getMediaType(a) === getMediaType(b);
+
+  // Helper inside MovieModal or passed down
+  const itemMediaType = movie.media_type || (movie.title ? 'movie' : 'tv');
+  const movieWithMediaType = { ...movie, media_type: itemMediaType };
+
+  const isInWatchlist = watchlist.some((item) => isSameTitle(item, movieWithMediaType));
+  const isWatched = watchedList.some((item) => isSameTitle(item, movieWithMediaType));
 
   // Toggle Watchlist
   const handleToggleWatchlist = () => {
     if (!setWatchlist) return;
     if (isInWatchlist) {
-      setWatchlist(watchlist.filter((item) => item.id !== movie.id));
-      toast.info(`${title} removed from Watchlist`, { autoClose: 2000 });
+      setWatchlist(watchlist.filter((item) => !isSameTitle(item, movieWithMediaType)));
+      toast.info(`"${title}" removed from Watchlist.`);
     } else {
-      setWatchlist([...watchlist, movie]);
-      toast.success(`${title} added to Watchlist`, { autoClose: 2000 });
+      setWatchlist([...watchlist, movieWithMediaType]);
+      toast.success(`"${title}" added to Watchlist!`);
       if (setWatchedList) {
-        setWatchedList(watchedList.filter((item) => item.id !== movie.id));
+        setWatchedList(watchedList.filter((item) => !isSameTitle(item, movieWithMediaType)));
       }
     }
   };
@@ -88,16 +99,17 @@ const MovieModal = ({
   const handleToggleWatched = () => {
     if (!setWatchedList) return;
     if (isWatched) {
-      setWatchedList(watchedList.filter((item) => item.id !== movie.id));
-      toast.info(`${title} removed from Watched List`, { autoClose: 2000 });
+      setWatchedList(watchedList.filter((item) => !isSameTitle(item, movieWithMediaType)));
+      toast.info(`"${title}" removed from Watched list.`);
     } else {
-      setWatchedList([...watchedList, movie]);
-      toast.success(`${title} marked as Watched`, { autoClose: 2000 });
+      setWatchedList([...watchedList, movieWithMediaType]);
+      toast.success(`"${title}" marked as Watched!`);
       if (setWatchlist) {
-        setWatchlist(watchlist.filter((item) => item.id !== movie.id));
+        setWatchlist(watchlist.filter((item) => !isSameTitle(item, movieWithMediaType)));
       }
     }
   };
+
 
   return (
     <Modal show={true} onHide={onClose} size="lg" centered>
