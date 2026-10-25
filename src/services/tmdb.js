@@ -18,13 +18,12 @@ export const fetchTrending = async (mediaType = 'all', timeWindow = 'day') => {
 // Helper to search movies/shows for Screen 2 (Search)
 export const searchMovies = async (query) => {
   if (!query) return [];
-  try {
-    const response = await fetch(`${BASE_URL}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
-    if (!response.ok) throw new Error('Failed to search');
-    const data = await response.json();
-    return data.results;
-  } catch (error) {
-    console.error("Error searching:", error);
-    return [];
+  const response = await fetch(
+    `${BASE_URL}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}`
+  );
+  if (!response.ok) {
+    throw new Error('Failed to fetch search results');
   }
+  const data = await response.json();
+  return data.results;
 };
